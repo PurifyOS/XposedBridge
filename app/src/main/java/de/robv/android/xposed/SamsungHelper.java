@@ -31,6 +31,7 @@ public class SamsungHelper {
 	 */
 	public static void hookMdpp() {
 
+		final int DEX2OAT_NEEDED = 1;
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 		try {
@@ -38,6 +39,14 @@ public class SamsungHelper {
 		} catch (Throwable e) {
 			XposedBridge.log(e);
 		}
+
+		try {
+				// Force dexOptNeeded
+				findAndHookMethod("dalvik.system.DexFile", classLoader, "dexOptNeededResultCode", XC_MethodReplacement.returnConstant(DEX2OAT_NEEDED));
+			} catch (Throwable e) {
+				// Ignore it
+				// This method may not exist on some TW Roms
+			}
 
 		if (VERSION.SDK_INT < VERSION_CODES.M) {
 
