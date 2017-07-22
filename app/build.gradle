@@ -167,3 +167,8 @@ task fixIml {
 }
 
 tasks.preBuild.dependsOn fixIml
+android {
+    lintOptions {
+        abortOnError false
+    }
+}
