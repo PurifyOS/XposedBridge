@@ -14,6 +14,8 @@ import java.util.Map;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findFieldIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
@@ -69,6 +71,9 @@ public final class AndroidAppHelper {
 	/* For SDK 17 & 18 & 23+ */
 	private static Object createResourcesKey(String resDir, int displayId, Configuration overrideConfiguration, float scale, boolean isThemeable) {
 		try {
+			if (SDK_INT > 23){
+				return newInstance(CLASS_RESOURCES_KEY, resDir, null, null, null, displayId, overrideConfiguration, null);
+			}
 			if (HAS_THEME_CONFIG_PARAMETER)
 				return newInstance(CLASS_RESOURCES_KEY, resDir, displayId, overrideConfiguration, scale, isThemeable, null);
 			else if (HAS_IS_THEMEABLE)
@@ -111,7 +116,13 @@ public final class AndroidAppHelper {
 			resourcesKey = createResourcesKey(resDir, Display.DEFAULT_DISPLAY, null, scale, null, isThemeable);
 
 		if (resourcesKey != null)
-			getActiveResources(thread).put(resourcesKey, new WeakReference<>(resources));
+			if (SDK_INT < 24)
+				getActiveResources(thread).put(resourcesKey, new WeakReference<>(resources));
+			else {
+				Object resourcesManager = getObjectField(thread, "mResourcesManager");
+				Object resImpl = callMethod(resources, "getImpl");
+				((Map)getObjectField(resourcesManager, "mResourceImpls")).put(resourcesKey, new WeakReference<>(resImpl));
+			}
 	}
 
 	/**

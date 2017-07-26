@@ -70,6 +70,7 @@ import static de.robv.android.xposed.XposedHelpers.inputStreamToByteArray;
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.write(dex);
 		fos.close();
+		file.setReadable(true, false);
 		return file;
 	}
 
