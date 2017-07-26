@@ -219,6 +219,14 @@ import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
 								app.uid == Process.myUid() ? app.sourceDir : app.publicSourceDir);
 					}
 				});
+		if (SDK_INT > 23){ // for context.getSharedPreferences("", MODE_WORLD_READABLE) disabled from nougat.
+			findAndHookMethod("android.app.ContextImpl", null, "checkMode", int.class, new XC_MethodReplacement() {
+				@Override
+				protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+					return null;
+				}
+			});
+		}
 	}
 
 	/*package*/ static void hookResources() throws Throwable {
