@@ -283,11 +283,13 @@ import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
 					@SuppressWarnings("unchecked")
 					ArrayList<WeakReference<Resources>> mResourceReferences = (ArrayList<WeakReference<Resources>>) getObjectField(param.thisObject, "mResourceReferences");
 					final int refCount = mResourceReferences.size();
-					for (int i = 0; i < refCount; i++) {
-						WeakReference<Resources> weakResourceRef = mResourceReferences.get(i);
-						Resources resources = weakResourceRef.get();
-						if (Objects.equals(resources, result)) {
-							mResourceReferences.set(i, new WeakReference<Resources>(newRes));
+					synchronized (param.thisObject) {
+						for (int i = 0; i < refCount; i++) {
+							WeakReference<Resources> weakResourceRef = mResourceReferences.get(i);
+							Resources resources = weakResourceRef.get();
+							if (Objects.equals(resources, result)) {
+								mResourceReferences.set(i, new WeakReference<Resources>(newRes));
+							}
 						}
 					}
 
